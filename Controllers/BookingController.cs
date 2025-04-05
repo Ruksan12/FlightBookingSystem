@@ -64,12 +64,36 @@ namespace FlightBookingSystem.Controllers
             return Ok("Booking updated successfully!");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "User,Admin")]
+        [HttpDelete("cancel/{id}")]
+        public async Task<IActionResult> CancelBooking(int id)
         {
-            await _bookingService.DeleteAsync(id);
-            return Ok("Booking deleted successfully!");
+            var booking = await _bookingService.GetByIdAsync(id);
+            if (booking == null)
+                return NotFound("Booking not found.");
+
+            // Optional: update status instead of hard deleting
+            booking.Status = "Cancelled";
+            await _bookingService.UpdateAsync(booking);
+
+            // Send cancellation email
+            if (booking.Passenger?.Email != null)
+            {
+                var subject = "Booking Cancellation Confirmation";
+                var body = $@"
+            <h2>Booking Cancelled</h2>
+            <p>Hello {booking.Passenger.Name},</p>
+            <p>Your flight booking from <b>{booking.Flight.Source}</b> to <b>{booking.Flight.Destination}</b> on <b>{booking.Flight.DepartureTime:dd MMM yyyy}</b> has been <b>cancelled</b>.</p>
+            <p><b>Booking ID:</b> {booking.BookingId}</p>
+            <p>Status: {booking.Status}</p>
+            <p>If this was a mistake, please contact support.</p>";
+
+                await _emailService.SendEmailAsync(booking.Passenger.Email, subject, body);
+            }
+
+            return Ok("Booking cancelled and confirmation email sent.");
         }
+
 
         [HttpGet("passenger/{passengerId}")]
         public async Task<IActionResult> GetByPassengerId(int passengerId)

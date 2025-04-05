@@ -30,5 +30,13 @@ namespace FlightBookingSystem.Repositories
                 .Where(b => b.FlightId == flightId)
                 .ToListAsync();
         }
+        public async Task<Booking> GetDetailedBookingByIdAsync(int bookingId)
+        {
+            return await _context.Bookings
+                .Include(b => b.Flight)
+                .Include(b => b.Passenger)
+                .FirstOrDefaultAsync(b => b.BookingId == bookingId);
+        }
+
     }
 }

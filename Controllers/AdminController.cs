@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FlightBookingSystem.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IService<Flight> _flightService;

@@ -6,6 +6,8 @@ namespace FlightBookingSystem.Repositories
     {
         Task<IEnumerable<Booking>> GetBookingsByPassengerId(int passengerId);
         Task<IEnumerable<Booking>> GetBookingsByFlightId(int flightId);
+        Task<Booking> GetDetailedBookingByIdAsync(int bookingId);
+
     }
 }
 

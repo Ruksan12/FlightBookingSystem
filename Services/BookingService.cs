@@ -21,5 +21,10 @@ namespace FlightBookingSystem.Services
         {
             return await _bookingRepository.GetBookingsByFlightId(flightId);
         }
+        public async Task<Booking> GetDetailedBookingByIdAsync(int bookingId)
+        {
+            return await _bookingRepository.GetDetailedBookingByIdAsync(bookingId);
+        }
+
     }
 }

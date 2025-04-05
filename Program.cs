@@ -72,6 +72,16 @@ namespace FlightBookingSystem
                     ValidAudience = builder.Configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
                 };
+                options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        var authHeader = context.Request.Headers["Authorization"];
+                        Console.WriteLine("🔐 Raw Token: " + authHeader);
+                        Console.WriteLine("❌ AUTH FAILED: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             builder.Services.AddAuthorization();
@@ -89,10 +99,15 @@ namespace FlightBookingSystem
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
 
             app.MapControllers();
+
+            Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
 
             app.Run();
         }
